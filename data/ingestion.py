@@ -22,7 +22,7 @@ def print_table(db, name):
 scraper = LawScraper(headless=True)
 start_date = datetime(1760, 1, 1)
 end_date = datetime(2024, 12, 31)
-caseDict = scraper.get_cases(start_date, end_date, 10)
+caseDict = scraper.get_cases(start_date, end_date, pageStart=1, pageLimit=300)
 #"""
 
 """

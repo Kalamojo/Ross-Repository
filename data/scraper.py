@@ -13,7 +13,7 @@ class LawScraper:
         self.driverService = Service(driverPath)
         #self.driver = webdriver.Firefox(service=self.driverService, options=self.options)
     
-    def get_cases(self, start: datetime, end: datetime, pageLimit: int = 20000) -> list[dict]:
+    def get_cases(self, start: datetime, end: datetime, pageStart: int = 1, pageLimit: int = 20000) -> list[dict]:
         caseList = []
         self.driver = webdriver.Firefox(service=self.driverService, options=self.options)
         self.driver.get(self.base_url + f"&date_start={start.strftime("%Y%m%d")}&date_end={end.strftime("%Y%m%d")}")
@@ -22,8 +22,8 @@ class LawScraper:
         pageCount = min(int(count.get_attribute("innerText")), pageLimit)
         self.driver.quit()
         print(pageCount)
-        for p in range(1, pageCount+1):
-            if p % 1000 == 1:
+        for p in range(pageStart, pageCount+1):
+            if p % 1000 == pageStart:
                 print('On Page:', p)
             urls = self.get_page_urls(start, end, p)
             print(urls)
