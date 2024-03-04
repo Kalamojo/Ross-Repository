@@ -14,13 +14,6 @@ load_dotenv()
 cohere_key = os.getenv("COHERE_API_KEY")
 co = cohere.Client(cohere_key)
 
-def cosine_sim(vector, matrix):
-    scores = []
-    for mat in matrix:
-        cos_sim = np.dot(vector, mat.toarray()[0])/(np.linalg.norm(vector)*np.linalg.norm(mat.toarray()[0]))
-        scores.append(cos_sim)
-    return np.asarray(scores)
-
 def give_lists(db, name, columns, rows):
     command = f"""
     SELECT {', '.join(columns)} FROM (
@@ -41,18 +34,19 @@ document_matrix = sparse.load_npz(f'./data/final_embeddings{version}.npz')
 with open(f'./data/vectorizer{version}.pk', 'rb') as f:
     vectorizer = pickle.load(f)
 
-query = "What are the possible charges of stealing food from a grocery store?"
+query = "Can you provide examples of prior court decisions involving intellectual property disputes similar to the issues raised in this case?"
 print("Query:", query)
 query_emb = co.embed([query], input_type="search_query", model="embed-english-v3.0").embeddings
-query_emb = np.asarray(query_emb)
+query_emb = sparse.csr_matrix(query_emb)
 query_tfidf = vectorizer.transform([query])
-query_matrix = np.concatenate((query_emb[0], query_tfidf[0].toarray()[0]))
+query_matrix = sparse.hstack((query_emb[0], query_tfidf[0]))
 
-scores = cosine_sim(query_matrix, document_matrix)
+scores = np.dot(query_matrix, document_matrix.T)[0]
+scores = scores.toarray()[0]
 max_idx = np.argsort(-scores)
 print("Semantic/Term Search top three document indices:", max_idx[:5].tolist())
 
-docs = give_lists(cur, 'Cases', ['name', 'content'], max_idx[:20])
+docs = give_lists(cur, 'Cases', ['name', 'content'], max_idx[:50])
 results = co.rerank(query=query, documents=docs, top_n=3, model="rerank-english-v2.0")
 result_indices = [max_idx[res.index] for res in results]
 
