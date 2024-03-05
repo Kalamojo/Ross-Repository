@@ -11,7 +11,6 @@ class LawScraper:
         self.options.add_argument('--disable-dev-shm-usage')
         if headless: self.options.add_argument("--headless")
         self.driverService = Service(driverPath)
-        #self.driver = webdriver.Firefox(service=self.driverService, options=self.options)
     
     def get_cases(self, start: datetime, end: datetime, pageStart: int = 1, pageLimit: int = 20000) -> list[dict]:
         caseList = []

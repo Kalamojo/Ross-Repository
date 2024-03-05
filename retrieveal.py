@@ -1,5 +1,6 @@
 import os.path
 import sqlite3
+from sqlite3 import Cursor
 import cohere
 import numpy as np
 import os
@@ -14,7 +15,7 @@ load_dotenv()
 cohere_key = os.getenv("COHERE_API_KEY")
 co = cohere.Client(cohere_key)
 
-def give_lists(db, name, columns, rows):
+def give_lists(db: Cursor, name: str, columns: list[str], rows: list[int]) -> list[str]:
     command = f"""
     SELECT {', '.join(columns)} FROM (
         SELECT ROW_NUMBER() OVER (ORDER BY decision_date) AS RowNum, *
@@ -24,8 +25,8 @@ def give_lists(db, name, columns, rows):
     ORDER BY {', '.join([f'C.RowNum={ind+1} DESC' for ind in rows])}
     """
     res_table = db.execute(command)
-    rows = [' '.join(row) for row in res_table]
-    return rows
+    case_rows = [' '.join(row) for row in res_table]
+    return case_rows
 
 con = sqlite3.connect(f'./data/courtCases{version}.db')
 cur = con.cursor()

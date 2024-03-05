@@ -1,11 +1,9 @@
-import os
 import sqlite3
-import pandas as pd
+from sqlite3 import Cursor
 from scraper import LawScraper
 from datetime import datetime
-import json
 
-def print_table(db, name):
+def print_table(db: Cursor, name: str) -> None:
     print(name + ':')
     res_table = db.execute(f'SELECT * FROM {name}')
     rows = [[item[0] for item in res_table.description]] + [row for row in res_table]
@@ -18,24 +16,13 @@ def print_table(db, name):
         print(format.format(*row))
     print('')
 
-#"""
 scraper = LawScraper(headless=True)
 start_date = datetime(1760, 1, 1)
 end_date = datetime(2024, 12, 31)
 caseDict = scraper.get_cases(start_date, end_date, pageStart=1, pageLimit=300)
-#"""
-
-"""
-with open("tempCases.json", 'r') as f:
-    caseDict = json.load(f)
-#"""
-
-#os.remove("./courtCases.db")
 
 con = sqlite3.connect('courtCases.db')
 cur = con.cursor()
-
-### Musicians table
 
 command = """
 CREATE TABLE Cases (
@@ -50,12 +37,12 @@ CREATE TABLE Cases (
 );
 """
 cur.execute(command)
-#"""
+
 for case in caseDict:
     cur.execute("INSERT INTO Cases VALUES (?, ?, ?, ?, ?, ?)", 
                 (case['name'], case.get("Citation", None), case.get("Docket No", None), 
                  datetime.strptime(case['Decided'], ' %B %d, %Y').strftime("%Y-%m-%d"), 
                  case['Court'], case['content'], case['url']))
-#"""
+
 con.commit()
 print_table(cur, "Cases")

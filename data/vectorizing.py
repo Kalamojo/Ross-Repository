@@ -1,5 +1,6 @@
 import os.path
 import sqlite3
+from sqlite3 import Cursor
 import cohere
 import numpy as np
 import os
@@ -19,7 +20,7 @@ cohere_key = os.getenv("COHERE_API_KEY")
 co = cohere.Client(cohere_key)
 stop_words = list(stopwords.words('english'))
 
-def give_list(db, name=''):
+def give_list(db: Cursor, name: str = '') -> list[str]:
 	if len(name) != 0:
 		res_table = db.execute(f'SELECT * FROM {name}')
 		rows = [row[0] for row in res_table]
@@ -28,7 +29,7 @@ def give_list(db, name=''):
 		rows = [row[0] for row in db]
 		return rows
 
-def get_table(db, name, orderBy):
+def get_table(db: Cursor, name: str, orderBy: str) -> list[str]:
     table_list = []
     res_table = db.execute(f'SELECT * FROM {name} ORDER BY {orderBy}')
     rows = [[item[0] for item in res_table.description][:-1]] + [row for row in res_table]
