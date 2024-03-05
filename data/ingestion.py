@@ -45,6 +45,7 @@ CREATE TABLE Cases (
     decision_date date,
     court text,
     content text,
+    url text,
     PRIMARY KEY (citation)
 );
 """
@@ -52,7 +53,9 @@ cur.execute(command)
 #"""
 for case in caseDict:
     cur.execute("INSERT INTO Cases VALUES (?, ?, ?, ?, ?, ?)", 
-                (case['name'], case.get("Citation", None), case.get("Docket No", None), datetime.strptime(case['Decided'], ' %B %d, %Y').strftime("%Y-%m-%d"), case['Court'], case['content']))
+                (case['name'], case.get("Citation", None), case.get("Docket No", None), 
+                 datetime.strptime(case['Decided'], ' %B %d, %Y').strftime("%Y-%m-%d"), 
+                 case['Court'], case['content'], case['url']))
 #"""
 con.commit()
 print_table(cur, "Cases")

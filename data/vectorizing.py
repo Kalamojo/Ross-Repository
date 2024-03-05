@@ -65,8 +65,6 @@ sparse.save_npz(f"case_tfidf{version}.npz", doc_tfidf)
 with open(f'vectorizer{version}.pk', 'wb') as f:
     pickle.dump(vectorizer, f)
 
-final_emb = np.zeros((doc_emb.shape[0], doc_emb.shape[1] + doc_tfidf.shape[1]))
-for idx in range(doc_emb.shape[0]):
-    final_emb[idx] = np.concatenate((doc_emb[idx], doc_tfidf[idx].toarray()[0]))
-final_emb_sparse = sparse.csr_matrix(final_emb)
-sparse.save_npz(f"final_embeddings{version}.npz", final_emb_sparse)
+doc_emb = sparse.csr_matrix(doc_emb)
+final_emb = sparse.hstack((doc_emb, doc_tfidf))
+sparse.save_npz(f"final_embeddings{version}.npz", final_emb)

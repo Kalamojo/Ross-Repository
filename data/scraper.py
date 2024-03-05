@@ -56,4 +56,5 @@ class LawScraper:
         content = self.driver.find_element(By.ID, 'caselaw-content')
         caseContent['content'] = content.get_attribute("innerText")
         self.driver.quit()
+        caseContent['url'] = url
         return caseContent

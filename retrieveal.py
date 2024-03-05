@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import pickle
 from scipy import sparse
 
-version = '_old'
+version = ''
 
 load_dotenv()
 
@@ -34,7 +34,7 @@ document_matrix = sparse.load_npz(f'./data/final_embeddings{version}.npz')
 with open(f'./data/vectorizer{version}.pk', 'rb') as f:
     vectorizer = pickle.load(f)
 
-query = "Can you provide examples of prior court decisions involving intellectual property disputes similar to the issues raised in this case?"
+query = "Is the defendant allowed to be their own lawyer?"
 print("Query:", query)
 query_emb = co.embed([query], input_type="search_query", model="embed-english-v3.0").embeddings
 query_emb = sparse.csr_matrix(query_emb)
@@ -46,7 +46,7 @@ scores = scores.toarray()[0]
 max_idx = np.argsort(-scores)
 print("Semantic/Term Search top three document indices:", max_idx[:5].tolist())
 
-docs = give_lists(cur, 'Cases', ['name', 'content'], max_idx[:50])
+docs = give_lists(cur, 'Cases', ['name', 'content'], max_idx[:25])
 results = co.rerank(query=query, documents=docs, top_n=3, model="rerank-english-v2.0")
 result_indices = [max_idx[res.index] for res in results]
 
